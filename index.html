@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Syllabary Practice: Dakuon & Youon</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        jp: ['"Klee One"', '"Zen Maru Gothic"', '"Hiragino Kaku Gothic ProN"', '"Yu Gothic"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        },
+                        sakura: {
+                            100: '#ffe4e6',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                        },
+                        matcha: {
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .kana-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .kana-card:hover {
+            transform: translateY(-3px);
+        }
+        .kana-card:active {
+            transform: scale(0.96);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-sakura-500 to-brand-500 text-white w-10 h-10 rounded-xl flex items-center justify-center font-jp text-xl font-bold shadow-md shadow-sakura-500/20">
+                    濁
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-slate-900 text-lg leading-tight">Dakuon & Youon Trainer</h1>
+                    <p class="text-xs text-slate-500 font-medium">濁音・半濁音・拗音 マスターアプリ</p>
+                </div>
+            </div>
+
+            <!-- Global Controls: Script & Category Toggles -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Hiragana / Katakana Switch -->
+                <div class="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
+                    <button id="btn-hiragana" onclick="setScript('hiragana')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-brand-600 shadow-sm">
+                        ひらがな <span class="text-[10px] opacity-75">Hiragana</span>
+                    </button>
+                    <button id="btn-katakana" onclick="setScript('katakana')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                        カタカナ <span class="text-[10px] opacity-75">Katakana</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- Topic Category Filters -->
+        <section class="mb-6">
+            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider px-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-filter text-brand-500"></i> Target Categories / 対象
+                </span>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="toggleCategory('dakuon')" id="cat-dakuon" class="cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-brand-500 bg-brand-50 text-brand-700 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-check text-[10px]"></i> 濁音 Dakuon (ga, za...)
+                    </button>
+                    <button onclick="toggleCategory('handakuon')" id="cat-handakuon" class="cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-brand-500 bg-brand-50 text-brand-700 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-check text-[10px]"></i> 半濁音 Handakuon (pa, pi...)
+                    </button>
+                    <button onclick="toggleCategory('youon')" id="cat-youon" class="cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-brand-500 bg-brand-50 text-brand-700 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-check text-[10px]"></i> 拗音 Youon (kya, shu...)
+                    </button>
+                    <button onclick="toggleCategory('dakuon_youon')" id="cat-dakuon_youon" class="cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-brand-500 bg-brand-50 text-brand-700 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-check text-[10px]"></i> 濁音+拗音 Combination (gya, ja...)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Mode Tabs -->
+        <div class="flex border-b border-slate-200 mb-6 gap-2 overflow-x-auto pb-1">
+            <button id="tab-chart" onclick="switchMode('chart')" class="mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-brand-500 text-brand-600 bg-white">
+                <i class="fa-solid fa-border-all"></i> 表・チャート Chart View
+            </button>
+            <button id="tab-writing" onclick="switchMode('writing')" class="mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-pen-nib"></i> 筆記練習 Writing
+            </button>
+            <button id="tab-quiz" onclick="switchMode('quiz')" class="mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-circle-question"></i> クイズ Quiz
+            </button>
+            <button id="tab-listening" onclick="switchMode('listening')" class="mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-headphones"></i> 聞き取り Listening
+            </button>
+            <button id="tab-typing" onclick="switchMode('typing')" class="mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-keyboard"></i> タイピング Typing
+            </button>
+        </div>
+
+        <!-- MODE 1: CHART VIEW -->
+        <div id="view-chart" class="space-y-8">
+            <div id="chart-container" class="space-y-8">
+                <!-- Dynamically generated charts -->
+            </div>
+        </div>
+
+        <!-- MODE: HANDWRITING PRACTICE -->
+        <div id="view-writing" class="hidden max-w-xl mx-auto space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl text-center space-y-6">
+                <!-- Character Display Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <span id="writing-romaji" class="text-xs font-bold text-slate-400 uppercase tracking-widest block">ga</span>
+                        <span id="writing-category" class="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">濁音 Dakuon</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="prevWritingKana()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button onclick="nextWritingKana()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Writing Container -->
+                <div class="relative w-64 h-64 mx-auto border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50 shadow-inner overflow-hidden flex items-center justify-center select-none touch-none">
+                    <!-- Grid Guidelines (4-quadrant crosshair) -->
+                    <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center">
+                        <div class="w-full border-b border-slate-200 border-dashed"></div>
+                        <div class="h-full border-r border-slate-200 border-dashed absolute top-0"></div>
+                    </div>
+
+                    <!-- Watermark / Guide Trace (下書き) -->
+                    <div id="writing-guide-text" class="absolute inset-0 flex items-center justify-center font-jp text-[160px] font-bold text-slate-200 pointer-events-none select-none transition-opacity duration-300 opacity-60">
+                        が
+                    </div>
+
+                    <!-- Canvas for User Drawing -->
+                    <canvas id="writing-canvas" width="256" height="256" class="absolute inset-0 cursor-crosshair z-10"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <button onclick="playWritingAudio()" class="px-4 py-2 bg-brand-50 text-brand-600 hover:bg-brand-100 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-volume-high"></i> 音声 Sound
+                    </button>
+                    <button onclick="toggleWritingGuide()" id="btn-toggle-guide" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye-slash"></i> 下書き Guide ON/OFF
+                    </button>
+                    <button onclick="clearWritingCanvas()" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-eraser"></i> 消す Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODE 2: QUIZ MODE -->
+        <div id="view-quiz" class="hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl text-center space-y-6">
+                <!-- Stats Header -->
+                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl text-xs font-bold text-slate-600 border border-slate-100">
+                    <div>Score: <span id="quiz-score" class="text-brand-600 text-base">0</span></div>
+                    <div>Streak: <span id="quiz-streak" class="text-amber-500 text-base">🔥 0</span></div>
+                </div>
+
+                <!-- Card Display -->
+                <div class="py-6 border-y border-slate-100 space-y-3">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Select the matching Romaji</p>
+                    <div id="quiz-kana" class="font-jp text-7xl font-bold text-slate-900 tracking-wide hover:scale-105 transition-transform cursor-pointer" onclick="playCurrentQuizAudio()">
+                        が
+                    </div>
+                    <button onclick="playCurrentQuizAudio()" class="text-xs text-brand-600 hover:text-brand-700 font-semibold inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 rounded-full">
+                        <i class="fa-solid fa-volume-high"></i> Listen Audio
+                    </button>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="quiz-options" class="grid grid-cols-2 gap-3">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <div id="quiz-feedback" class="h-6 text-sm font-bold transition-all"></div>
+            </div>
+        </div>
+
+        <!-- MODE 3: LISTENING TEST MODE -->
+        <div id="view-listening" class="hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl text-center space-y-6">
+                <!-- Stats Header -->
+                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl text-xs font-bold text-slate-600 border border-slate-100">
+                    <div>Score: <span id="listening-score" class="text-brand-600 text-base">0</span></div>
+                    <div>Streak: <span id="listening-streak" class="text-amber-500 text-base">🔥 0</span></div>
+                </div>
+
+                <!-- Audio Play Button -->
+                <div class="py-8 border-y border-slate-100 space-y-4">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Listen and select the Kana</p>
+                    <button onclick="playListeningAudio()" class="w-24 h-24 bg-gradient-to-tr from-brand-500 to-brand-600 text-white rounded-full mx-auto flex items-center justify-center text-3xl shadow-lg shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <p class="text-xs text-slate-400">Click button to replay sound</p>
+                </div>
+
+                <!-- Kana Options Grid -->
+                <div id="listening-options" class="grid grid-cols-2 gap-3">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <div id="listening-feedback" class="h-6 text-sm font-bold transition-all"></div>
+            </div>
+        </div>
+
+        <!-- MODE 4: TYPING PRACTICE MODE -->
+        <div id="view-typing" class="hidden max-w-xl mx-auto">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-xl text-center space-y-6">
+                <!-- Stats Header -->
+                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-2xl text-xs font-bold text-slate-600 border border-slate-100">
+                    <div>Score: <span id="typing-score" class="text-brand-600 text-base">0</span></div>
+                    <div>Streak: <span id="typing-streak" class="text-amber-500 text-base">🔥 0</span></div>
+                </div>
+
+                <!-- Character Display -->
+                <div class="py-6 border-y border-slate-100 space-y-3">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Type the correct Romaji</p>
+                    <div id="typing-kana" class="font-jp text-7xl font-bold text-slate-900 hover:scale-105 transition-transform cursor-pointer" onclick="playCurrentTypingAudio()">
+                        きゃ
+                    </div>
+                    <button onclick="playCurrentTypingAudio()" class="text-xs text-brand-600 hover:text-brand-700 font-semibold inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 rounded-full">
+                        <i class="fa-solid fa-volume-high"></i> Listen
+                    </button>
+                </div>
+
+                <!-- Input Field & Submit -->
+                <form onsubmit="handleTypingSubmit(event)" class="space-y-4">
+                    <input type="text" id="typing-input" autocomplete="off" placeholder="e.g., kya, gi, pya" class="w-full text-center text-2xl font-bold py-3 px-4 rounded-2xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none transition-all uppercase tracking-wider">
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-2xl hover:bg-slate-800 transition-all shadow-md">
+                        Check Answer / 回答する
+                    </button>
+                </form>
+
+                <div id="typing-feedback" class="h-6 text-sm font-bold transition-all"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+        <p>Japanese Syllabary Learning Tool • Dakuon (濁音), Handakuon (半濁音), Youon (拗音)</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- DATA STRUCTURES FOR DAKUON & YOUON ---
+        const KANA_DATA = [
+            // 1. DAKUON (濁音)
+            { id: 'ga', h: 'が', k: 'ガ', r: 'ga', cat: 'dakuon', group: 'G-row' },
+            { id: 'gi', h: 'ぎ', k: 'ギ', r: 'gi', cat: 'dakuon', group: 'G-row' },
+            { id: 'gu', h: 'ぐ', k: 'グ', r: 'gu', cat: 'dakuon', group: 'G-row' },
+            { id: 'ge', h: 'げ', k: 'ゲ', r: 'ge', cat: 'dakuon', group: 'G-row' },
+            { id: 'go', h: 'ご', k: 'ゴ', r: 'go', cat: 'dakuon', group: 'G-row' },
+
+            { id: 'za', h: 'ざ', k: 'ザ', r: 'za', cat: 'dakuon', group: 'Z-row' },
+            { id: 'ji_z', h: 'じ', k: 'ジ', r: 'ji', cat: 'dakuon', group: 'Z-row' },
+            { id: 'zu_z', h: 'ず', k: 'ズ', r: 'zu', cat: 'dakuon', group: 'Z-row' },
+            { id: 'ze', h: 'ぜ', k: 'ゼ', r: 'ze', cat: 'dakuon', group: 'Z-row' },
+            { id: 'zo', h: 'ぞ', k: 'ゾ', r: 'zo', cat: 'dakuon', group: 'Z-row' },
+
+            { id: 'da', h: 'だ', k: 'ダ', r: 'da', cat: 'dakuon', group: 'D-row' },
+            { id: 'ji_d', h: 'ぢ', k: 'ヂ', r: 'ji', cat: 'dakuon', group: 'D-row', altR: 'dzi' },
+            { id: 'zu_d', h: 'づ', k: 'ヅ', r: 'zu', cat: 'dakuon', group: 'D-row', altR: 'dzu' },
+            { id: 'de', h: 'で', k: 'デ', r: 'de', cat: 'dakuon', group: 'D-row' },
+            { id: 'do', h: 'ど', k: 'ド', r: 'do', cat: 'dakuon', group: 'D-row' },
+
+            { id: 'ba', h: 'ば', k: 'バ', r: 'ba', cat: 'dakuon', group: 'B-row' },
+            { id: 'bi', h: 'び', k: 'ビ', r: 'bi', cat: 'dakuon', group: 'B-row' },
+            { id: 'bu', h: 'ぶ', k: 'ブ', r: 'bu', cat: 'dakuon', group: 'B-row' },
+            { id: 'be', h: 'べ', k: 'ベ', r: 'be', cat: 'dakuon', group: 'B-row' },
+            { id: 'bo', h: 'ぼ', k: 'ボ', r: 'bo', cat: 'dakuon', group: 'B-row' },
+
+            // 2. HANDAKUON (半濁音)
+            { id: 'pa', h: 'ぱ', k: 'パ', r: 'pa', cat: 'handakuon', group: 'P-row' },
+            { id: 'pi', h: 'ぴ', k: 'ピ', r: 'pi', cat: 'handakuon', group: 'P-row' },
+            { id: 'pu', h: 'ぷ', k: 'プ', r: 'pu', cat: 'handakuon', group: 'P-row' },
+            { id: 'pe', h: 'ぺ', k: 'ペ', r: 'pe', cat: 'handakuon', group: 'P-row' },
+            { id: 'po', h: 'ぽ', k: 'ポ', r: 'po', cat: 'handakuon', group: 'P-row' },
+
+            // 3. YOUON (拗音) - Clear
+            { id: 'kya', h: 'きゃ', k: 'キャ', r: 'kya', cat: 'youon', group: 'KY-row' },
+            { id: 'kyu', h: 'きゅ', k: 'キュ', r: 'kyu', cat: 'youon', group: 'KY-row' },
+            { id: 'kyo', h: 'きょ', k: 'キョ', r: 'kyo', cat: 'youon', group: 'KY-row' },
+
+            { id: 'sha', h: 'しゃ', k: 'シャ', r: 'sha', cat: 'youon', group: 'SH-row' },
+            { id: 'shu', h: 'しゅ', k: 'シュ', r: 'shu', cat: 'youon', group: 'SH-row' },
+            { id: 'sho', h: 'しょ', k: 'ショ', r: 'sho', cat: 'youon', group: 'SH-row' },
+
+            { id: 'cha', h: 'ちゃ', k: 'チャ', r: 'cha', cat: 'youon', group: 'CH-row' },
+            { id: 'chu', h: 'ちゅ', k: 'チュ', r: 'chu', cat: 'youon', group: 'CH-row' },
+            { id: 'cho', h: 'ちょ', k: 'チョ', r: 'cho', cat: 'youon', group: 'CH-row' },
+
+            { id: 'nya', h: 'にゃ', k: 'ニャ', r: 'nya', cat: 'youon', group: 'NY-row' },
+            { id: 'nyu', h: 'にゅ', k: 'ニュ', r: 'nyu', cat: 'youon', group: 'NY-row' },
+            { id: 'nyo', h: 'にょ', k: 'ニョ', r: 'nyo', cat: 'youon', group: 'NY-row' },
+
+            { id: 'hya', h: 'ひゃ', k: 'ヒャ', r: 'hya', cat: 'youon', group: 'HY-row' },
+            { id: 'hyu', h: 'ひゅ', k: 'ヒュ', r: 'hyu', cat: 'youon', group: 'HY-row' },
+            { id: 'hyo', h: 'ひょ', k: 'ヒョ', r: 'hyo', cat: 'youon', group: 'HY-row' },
+
+            { id: 'mya', h: 'みゃ', k: 'ミャ', r: 'mya', cat: 'youon', group: 'MY-row' },
+            { id: 'myu', h: 'みゅ', k: 'ミュ', r: 'myu', cat: 'youon', group: 'MY-row' },
+            { id: 'myo', h: 'みょ', k: 'ミョ', r: 'myo', cat: 'youon', group: 'MY-row' },
+
+            { id: 'rya', h: 'りゃ', k: 'リャ', r: 'rya', cat: 'youon', group: 'RY-row' },
+            { id: 'ryu', h: 'りゅ', k: 'リュ', r: 'ryu', cat: 'youon', group: 'RY-row' },
+            { id: 'ryo', h: 'りょ', k: 'リョ', r: 'ryo', cat: 'youon', group: 'RY-row' },
+
+            // 4. DAKUON / HANDAKUON + YOUON (濁音・半濁音 + 拗音)
+            { id: 'gya', h: 'ぎゃ', k: 'ギャ', r: 'gya', cat: 'dakuon_youon', group: 'GY-row' },
+            { id: 'gyu', h: 'ぎゅ', k: 'ギュ', r: 'gyu', cat: 'dakuon_youon', group: 'GY-row' },
+            { id: 'gyo', h: 'ぎょ', k: 'ギョ', r: 'gyo', cat: 'dakuon_youon', group: 'GY-row' },
+
+            { id: 'ja', h: 'じゃ', k: 'ジャ', r: 'ja', cat: 'dakuon_youon', group: 'J-row', altR: 'jya' },
+            { id: 'ju', h: 'じゅ', k: 'ジュ', r: 'ju', cat: 'dakuon_youon', group: 'J-row', altR: 'jyu' },
+            { id: 'jo', h: 'じょ', k: 'ジョ', r: 'jo', cat: 'dakuon_youon', group: 'J-row', altR: 'jyo' },
+
+            { id: 'bya', h: 'びゃ', k: 'ビャ', r: 'bya', cat: 'dakuon_youon', group: 'BY-row' },
+            { id: 'byu', h: 'びゅ', k: 'ビュ', r: 'byu', cat: 'dakuon_youon', group: 'BY-row' },
+            { id: 'byo', h: 'びょ', k: 'ビョ', r: 'byo', cat: 'dakuon_youon', group: 'BY-row' },
+
+            { id: 'pya', h: 'ぴゃ', k: 'ピャ', r: 'pya', cat: 'dakuon_youon', group: 'PY-row' },
+            { id: 'pyu', h: 'ぴゅ', k: 'ピュ', r: 'pyu', cat: 'dakuon_youon', group: 'PY-row' },
+            { id: 'pyo', h: 'ぴょ', k: 'ピョ', r: 'pyo', cat: 'dakuon_youon', group: 'PY-row' },
+        ];
+
+        // State Management
+        let currentScript = 'hiragana'; // 'hiragana' or 'katakana'
+        let activeCategories = ['dakuon', 'handakuon', 'youon', 'dakuon_youon'];
+        let activeMode = 'chart'; // 'chart', 'writing', 'quiz', 'listening', 'typing'
+
+        // Writing Canvas State
+        let writingIndex = 0;
+        let showWritingGuide = true;
+        let isDrawing = false;
+        let canvasCtx = null;
+
+        // Scores & Streaks
+        let quizState = { current: null, score: 0, streak: 0 };
+        let listeningState = { current: null, score: 0, streak: 0 };
+        let typingState = { current: null, score: 0, streak: 0 };
+
+        // Audio Synth Context for Sound Effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSoundFx(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(130, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // Web Speech API for Japanese Audio
+        function speakKana(japaneseText) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // stop current audio
+                const utterance = new SpeechSynthesisUtterance(japaneseText);
+                utterance.lang = 'ja-JP';
+                utterance.rate = 0.85; // slightly slower for language learners
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // --- FILTER & SCRIPT CONTROLS ---
+        function setScript(script) {
+            currentScript = script;
+            document.getElementById('btn-hiragana').className = script === 'hiragana' 
+                ? 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-brand-600 shadow-sm'
+                : 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+            document.getElementById('btn-katakana').className = script === 'katakana' 
+                ? 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-brand-600 shadow-sm'
+                : 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+
+            renderChart();
+            resetModeState();
+        }
+
+        function toggleCategory(cat) {
+            if (activeCategories.includes(cat)) {
+                if (activeCategories.length === 1) return; // keep at least one
+                activeCategories = activeCategories.filter(c => c !== cat);
+            } else {
+                activeCategories.push(cat);
+            }
+
+            // Update UI chip states
+            ['dakuon', 'handakuon', 'youon', 'dakuon_youon'].forEach(c => {
+                const btn = document.getElementById(`cat-${c}`);
+                if (activeCategories.includes(c)) {
+                    btn.className = 'cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-brand-500 bg-brand-50 text-brand-700 flex items-center gap-1.5 transition-all';
+                    btn.querySelector('i').className = 'fa-solid fa-check text-[10px]';
+                } else {
+                    btn.className = 'cat-chip px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-400 flex items-center gap-1.5 transition-all';
+                    btn.querySelector('i').className = 'fa-solid fa-plus text-[10px]';
+                }
+            });
+
+            renderChart();
+            resetModeState();
+        }
+
+        function getFilteredKana() {
+            return KANA_DATA.filter(item => activeCategories.includes(item.cat));
+        }
+
+        // --- RENDER CHART VIEW ---
+        function renderChart() {
+            const container = document.getElementById('chart-container');
+            container.innerHTML = '';
+
+            const categories = [
+                { key: 'dakuon', title: '濁音 Dakuon (Voiced Consonants)' },
+                { key: 'handakuon', title: '半濁音 Handakuon (Semi-voiced Consonants)' },
+                { key: 'youon', title: '拗音 Youon (Contracted Sounds)' },
+                { key: 'dakuon_youon', title: '濁音・半濁音 + 拗音 Voiced Contracted Sounds' }
+            ];
+
+            categories.forEach(cat => {
+                if (!activeCategories.includes(cat.key)) return;
+
+                const catItems = KANA_DATA.filter(item => item.cat === cat.key);
+                if (catItems.length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4';
+
+                section.innerHTML = `
+                    <h3 class="text-sm font-bold text-slate-700 border-b border-slate-100 pb-2 flex items-center justify-between">
+                        <span>${cat.title}</span>
+                        <span class="text-xs font-normal text-slate-400">${catItems.length} characters</span>
+                    </h3>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3" id="grid-${cat.key}">
+                    </div>
+                `;
+
+                container.appendChild(section);
+
+                const grid = section.querySelector(`#grid-${cat.key}`);
+                catItems.forEach(item => {
+                    const char = currentScript === 'hiragana' ? item.h : item.k;
+                    const card = document.createElement('button');
+                    card.className = 'kana-card bg-slate-50 hover:bg-brand-50 border border-slate-200 hover:border-brand-300 p-3 rounded-xl flex flex-col items-center justify-center gap-1 text-center cursor-pointer group shadow-xs';
+                    card.onclick = () => speakKana(char);
+
+                    card.innerHTML = `
+                        <span class="font-jp text-2xl font-bold text-slate-800 group-hover:text-brand-600 transition-colors">${char}</span>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">${item.r}</span>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        // --- MODE SWITCHING ---
+        function switchMode(mode) {
+            activeMode = mode;
+            ['chart', 'writing', 'quiz', 'listening', 'typing'].forEach(m => {
+                const tab = document.getElementById(`tab-${m}`);
+                const view = document.getElementById(`view-${m}`);
+                if (m === mode) {
+                    tab.className = 'mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-brand-500 text-brand-600 bg-white';
+                    view.classList.remove('hidden');
+                } else {
+                    tab.className = 'mode-tab px-4 py-2.5 rounded-t-xl text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800';
+                    view.classList.add('hidden');
+                }
+            });
+
+            if (mode === 'writing') initWritingCanvas();
+            resetModeState();
+        }
+
+        function resetModeState() {
+            if (activeMode === 'writing') updateWritingDisplay();
+            if (activeMode === 'quiz') nextQuizQuestion();
+            if (activeMode === 'listening') nextListeningQuestion();
+            if (activeMode === 'typing') nextTypingQuestion();
+        }
+
+        // --- HANDWRITING PRACTICE LOGIC ---
+        function initWritingCanvas() {
+            const canvas = document.getElementById('writing-canvas');
+            canvasCtx = canvas.getContext('2d');
+
+            // Mouse & Touch event listeners for canvas drawing
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', draw);
+            canvas.removeEventListener('mouseup', stopDrawing);
+            canvas.removeEventListener('mouseleave', stopDrawing);
+
+            canvas.removeEventListener('touchstart', startDrawingTouch);
+            canvas.removeEventListener('touchmove', drawTouch);
+            canvas.removeEventListener('touchend', stopDrawing);
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseleave', stopDrawing);
+
+            canvas.addEventListener('touchstart', startDrawingTouch, { passive: false });
+            canvas.addEventListener('touchmove', drawTouch, { passive: false });
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function updateWritingDisplay() {
+            const filtered = getFilteredKana();
+            if (filtered.length === 0) return;
+            if (writingIndex >= filtered.length) writingIndex = 0;
+
+            const current = filtered[writingIndex];
+            const char = currentScript === 'hiragana' ? current.h : current.k;
+
+            document.getElementById('writing-guide-text').innerText = char;
+            document.getElementById('writing-romaji').innerText = current.r;
+            document.getElementById('writing-category').innerText = current.cat.toUpperCase().replace('_', ' + ');
+
+            clearWritingCanvas();
+            speakKana(char);
+        }
+
+        function clearWritingCanvas() {
+            const canvas = document.getElementById('writing-canvas');
+            if (canvasCtx && canvas) {
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function toggleWritingGuide() {
+            showWritingGuide = !showWritingGuide;
+            const guideText = document.getElementById('writing-guide-text');
+            guideText.style.opacity = showWritingGuide ? '0.6' : '0';
+        }
+
+        function nextWritingKana() {
+            const filtered = getFilteredKana();
+            writingIndex = (writingIndex + 1) % filtered.length;
+            updateWritingDisplay();
+        }
+
+        function prevWritingKana() {
+            const filtered = getFilteredKana();
+            writingIndex = (writingIndex - 1 + filtered.length) % filtered.length;
+            updateWritingDisplay();
+        }
+
+        function playWritingAudio() {
+            const filtered = getFilteredKana();
+            if (filtered[writingIndex]) {
+                const char = currentScript === 'hiragana' ? filtered[writingIndex].h : filtered[writingIndex].k;
+                speakKana(char);
+            }
+        }
+
+        // Canvas Drawing Helpers
+        function getCanvasCoords(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const canvas = document.getElementById('writing-canvas');
+            const pos = getCanvasCoords(e, canvas);
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(pos.x, pos.y);
+            canvasCtx.strokeStyle = '#0284c7'; // brand-500
+            canvasCtx.lineWidth = 10;
+            canvasCtx.lineCap = 'round';
+            canvasCtx.lineJoin = 'round';
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const canvas = document.getElementById('writing-canvas');
+            const pos = getCanvasCoords(e, canvas);
+            canvasCtx.lineTo(pos.x, pos.y);
+            canvasCtx.stroke();
+        }
+
+        function startDrawingTouch(e) {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                startDrawing(e.touches[0]);
+            }
+        }
+
+        function drawTouch(e) {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                draw(e.touches[0]);
+            }
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // --- MODE 2: QUIZ LOGIC ---
+        function nextQuizQuestion() {
+            const list = getFilteredKana();
+            if (list.length < 4) return;
+
+            const current = list[Math.floor(Math.random() * list.length)];
+            quizState.current = current;
+
+            const char = currentScript === 'hiragana' ? current.h : current.k;
+            document.getElementById('quiz-kana').innerText = char;
+            document.getElementById('quiz-feedback').innerText = '';
+
+            // Play audio automatically
+            speakKana(char);
+
+            // Generate distractors
+            const options = [current];
+            while (options.length < 4) {
+                const rand = list[Math.floor(Math.random() * list.length)];
+                if (!options.find(o => o.id === rand.id)) {
+                    options.push(rand);
+                }
+            }
+            // Shuffle
+            options.sort(() => Math.random() - 0.5);
+
+            const optContainer = document.getElementById('quiz-options');
+            optContainer.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'py-3.5 px-4 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 font-bold text-slate-800 text-lg rounded-2xl transition-all active:scale-95';
+                btn.innerText = opt.r;
+                btn.onclick = () => handleQuizAnswer(opt, btn);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function playCurrentQuizAudio() {
+            if (quizState.current) {
+                const char = currentScript === 'hiragana' ? quizState.current.h : quizState.current.k;
+                speakKana(char);
+            }
+        }
+
+        function handleQuizAnswer(selected, buttonEl) {
+            const isCorrect = selected.id === quizState.current.id;
+            const feedbackEl = document.getElementById('quiz-feedback');
+
+            if (isCorrect) {
+                playSoundFx('correct');
+                buttonEl.className = 'py-3.5 px-4 bg-matcha-100 border-2 border-matcha-500 text-matcha-600 font-bold text-lg rounded-2xl scale-105 transition-all';
+                feedbackEl.className = 'h-6 text-sm font-bold text-matcha-600';
+                feedbackEl.innerText = 'Correct! 正解です！';
+                quizState.score += 10;
+                quizState.streak += 1;
+            } else {
+                playSoundFx('wrong');
+                buttonEl.className = 'py-3.5 px-4 bg-rose-100 border-2 border-rose-500 text-rose-600 font-bold text-lg rounded-2xl transition-all';
+                feedbackEl.className = 'h-6 text-sm font-bold text-rose-500';
+                feedbackEl.innerText = `Incorrect! Correct: ${quizState.current.r}`;
+                quizState.streak = 0;
+            }
+
+            document.getElementById('quiz-score').innerText = quizState.score;
+            document.getElementById('quiz-streak').innerText = `🔥 ${quizState.streak}`;
+
+            setTimeout(nextQuizQuestion, 1200);
+        }
+
+        // --- MODE 3: LISTENING TEST LOGIC ---
+        function nextListeningQuestion() {
+            const list = getFilteredKana();
+            if (list.length < 4) return;
+
+            const current = list[Math.floor(Math.random() * list.length)];
+            listeningState.current = current;
+
+            document.getElementById('listening-feedback').innerText = '';
+
+            // Generate distractors
+            const options = [current];
+            while (options.length < 4) {
+                const rand = list[Math.floor(Math.random() * list.length)];
+                if (!options.find(o => o.id === rand.id)) {
+                    options.push(rand);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optContainer = document.getElementById('listening-options');
+            optContainer.innerHTML = '';
+            options.forEach(opt => {
+                const char = currentScript === 'hiragana' ? opt.h : opt.k;
+                const btn = document.createElement('button');
+                btn.className = 'py-4 px-4 bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 font-jp text-3xl font-bold text-slate-800 rounded-2xl transition-all active:scale-95';
+                btn.innerText = char;
+                btn.onclick = () => handleListeningAnswer(opt, btn);
+                optContainer.appendChild(btn);
+            });
+
+            playListeningAudio();
+        }
+
+        function playListeningAudio() {
+            if (listeningState.current) {
+                const char = currentScript === 'hiragana' ? listeningState.current.h : listeningState.current.k;
+                speakKana(char);
+            }
+        }
+
+        function handleListeningAnswer(selected, buttonEl) {
+            const isCorrect = selected.id === listeningState.current.id;
+            const feedbackEl = document.getElementById('listening-feedback');
+
+            if (isCorrect) {
+                playSoundFx('correct');
+                buttonEl.className = 'py-4 px-4 bg-matcha-100 border-2 border-matcha-500 font-jp text-3xl text-matcha-600 font-bold rounded-2xl scale-105 transition-all';
+                feedbackEl.className = 'h-6 text-sm font-bold text-matcha-600';
+                feedbackEl.innerText = `Correct! (${listeningState.current.r})`;
+                listeningState.score += 10;
+                listeningState.streak += 1;
+            } else {
+                playSoundFx('wrong');
+                buttonEl.className = 'py-4 px-4 bg-rose-100 border-2 border-rose-500 font-jp text-3xl text-rose-600 font-bold rounded-2xl transition-all';
+                feedbackEl.className = 'h-6 text-sm font-bold text-rose-500';
+                feedbackEl.innerText = `Incorrect! Correct: ${currentScript === 'hiragana' ? listeningState.current.h : listeningState.current.k} (${listeningState.current.r})`;
+                listeningState.streak = 0;
+            }
+
+            document.getElementById('listening-score').innerText = listeningState.score;
+            document.getElementById('listening-streak').innerText = `🔥 ${listeningState.streak}`;
+
+            setTimeout(nextListeningQuestion, 1200);
+        }
+
+        // --- MODE 4: TYPING PRACTICE LOGIC ---
+        function nextTypingQuestion() {
+            const list = getFilteredKana();
+            if (list.length === 0) return;
+
+            const current = list[Math.floor(Math.random() * list.length)];
+            typingState.current = current;
+
+            const char = currentScript === 'hiragana' ? current.h : current.k;
+            document.getElementById('typing-kana').innerText = char;
+            document.getElementById('typing-input').value = '';
+            document.getElementById('typing-feedback').innerText = '';
+            document.getElementById('typing-input').focus();
+
+            speakKana(char);
+        }
+
+        function playCurrentTypingAudio() {
+            if (typingState.current) {
+                const char = currentScript === 'hiragana' ? typingState.current.h : typingState.current.k;
+                speakKana(char);
+            }
+        }
+
+        function handleTypingSubmit(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('typing-input').value.trim().toLowerCase();
+            if (!inputVal) return;
+
+            const current = typingState.current;
+            const validAnswers = [current.r.toLowerCase()];
+            if (current.altR) validAnswers.push(current.altR.toLowerCase());
+
+            const isCorrect = validAnswers.includes(inputVal);
+            const feedbackEl = document.getElementById('typing-feedback');
+
+            if (isCorrect) {
+                playSoundFx('correct');
+                feedbackEl.className = 'h-6 text-sm font-bold text-matcha-600';
+                feedbackEl.innerText = 'Correct! 正解です！';
+                typingState.score += 10;
+                typingState.streak += 1;
+            } else {
+                playSoundFx('wrong');
+                feedbackEl.className = 'h-6 text-sm font-bold text-rose-500';
+                feedbackEl.innerText = `Incorrect! Correct Romaji: ${current.r}`;
+                typingState.streak = 0;
+            }
+
+            document.getElementById('typing-score').innerText = typingState.score;
+            document.getElementById('typing-streak').innerText = `🔥 ${typingState.streak}`;
+
+            setTimeout(nextTypingQuestion, 1200);
+        }
+
+        // Initialize App on window load
+        window.onload = function() {
+            renderChart();
+        };
+    </script>
+</body>
+</html>
